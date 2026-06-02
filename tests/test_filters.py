@@ -166,7 +166,7 @@ class TestFilter:
         t = env.from_string("{{ foo|indent(2, false, true) }}")
         assert t.render(foo=text) == '\n  foo bar\n  "baz"\n  '
         t = env.from_string("{{ foo|indent(2, true, false) }}")
-        assert t.render(foo=text) == '  \n  foo bar\n  "baz"\n'
+        assert t.render(foo=text) == '\n  foo bar\n  "baz"\n'
         t = env.from_string("{{ foo|indent(2, true, true) }}")
         assert t.render(foo=text) == '  \n  foo bar\n  "baz"\n  '
 
@@ -178,6 +178,19 @@ class TestFilter:
         assert t.render() == "    jinja"
         t = env.from_string('{{ "jinja"|indent(blank=true) }}')
         assert t.render() == "jinja"
+
+    def test_indent_first_blank(self, env):
+        # ``blank=False`` (the default) must suppress indentation of the first
+        # line when it is empty, even when ``first=True``.  Regression for
+        # https://github.com/pallets/jinja/issues/2176
+        t = env.from_string("{% filter indent(4, first=true) %}{% endfilter %}")
+        assert t.render() == ""
+        # A leading blank line is not indented when blank=False.
+        t = env.from_string('{{ "\nhello"|indent(4, first=true) }}')
+        assert t.render() == "\n    hello"
+        # blank=True still indents the first line even when it is empty.
+        t = env.from_string("{% filter indent(4, first=true, blank=true) %}{% endfilter %}")
+        assert t.render() == "    "
 
     def test_indent_markup_input(self, env):
         """
