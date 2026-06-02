@@ -189,7 +189,9 @@ class TestFilter:
         t = env.from_string('{{ "\nhello"|indent(4, first=true) }}')
         assert t.render() == "\n    hello"
         # blank=True still indents the first line even when it is empty.
-        t = env.from_string("{% filter indent(4, first=true, blank=true) %}{% endfilter %}")
+        t = env.from_string(
+            "{% filter indent(4, first=true, blank=true) %}{% endfilter %}"
+        )
         assert t.render() == "    "
 
     def test_indent_markup_input(self, env):
